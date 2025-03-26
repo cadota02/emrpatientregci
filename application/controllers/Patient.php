@@ -7,6 +7,7 @@ class Patient extends CI_Controller {
         parent::__construct();
         $this->load->model('Patient_model');
         $this->load->library('form_validation');
+        $this->load->library('upload');
     }
 
     public function index() {
@@ -17,6 +18,21 @@ class Patient extends CI_Controller {
     }
 
     public function add() {
+        $config['upload_path']   = './uploads/patients/'; // Folder to store files
+        $config['allowed_types'] = 'jpg|jpeg|png|gif'; // Allowed file types
+        $config['max_size']      = 2048; // Max file size in KB (2MB)
+        $config['encrypt_name']  = TRUE; // Rename file to avoid conflicts
+
+        $this->upload->initialize($config);
+
+        if ($this->upload->do_upload('profile_image')) {
+            $upload_data = $this->upload->data();
+            $profile_image = 'uploads/patients/' . $upload_data['file_name']; // Store file path
+        } else {
+            $profile_image = NULL; // Set NULL if no file uploaded
+        }
+
+
         //Set validation rules
         $this->form_validation->set_rules('firstname', 'Firstaname', 'required|min_length[3]|max_length[255]');
         $this->form_validation->set_rules('lastname', 'Lastname', 'required|min_length[3]|max_length[255]');
@@ -37,7 +53,8 @@ class Patient extends CI_Controller {
                 'sex' => $this->input->post('sex'),
                 'phone' => $this->input->post('phone'),
                 'email' => $this->input->post('email'),
-                'created_at' => date('Y-m-d H:i:s')
+                'created_at' => date('Y-m-d H:i:s'),
+                'profile_image'=> $profile_image
             ];
           
             if($this->Patient_model->insert_patient($patient_data)) {
@@ -53,26 +70,20 @@ class Patient extends CI_Controller {
     }
     //get patient details
     public function edit($id) {
-        
         $data['patient'] = $this->Patient_model->get_patient_by_id($id);
-        if(!$data['patient']) {
-          show_404();
-        }
-        else
-        {
-            $this->form_validation->set_rules('firstname', 'Firstaname', 'required|min_length[3]|max_length[255]');
+        if (!$data['patient']) {
+            show_404();
+        } else {
+            $this->form_validation->set_rules('firstname', 'Firstname', 'required|min_length[3]|max_length[255]');
             $this->form_validation->set_rules('lastname', 'Lastname', 'required|min_length[3]|max_length[255]');
             $this->form_validation->set_rules('sex', 'Sex', 'required|min_length[1]|max_length[1]');
             $this->form_validation->set_rules('birthday', 'Birthday', 'required');
             $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
             $this->form_validation->set_rules('phone', 'Phone', 'required|min_length[10]|max_length[15]');
-
-            if($this->form_validation->run()== FALSE)
-            {
+    
+            if ($this->form_validation->run() == FALSE) {
                 $this->load->view('patient/edit', $data);
-            }
-            else
-            {
+            } else {
                 $update_data = [
                     'firstname' => $this->input->post('firstname'),
                     'lastname' => $this->input->post('lastname'),
@@ -83,12 +94,34 @@ class Patient extends CI_Controller {
                     'email' => $this->input->post('email'),
                     'updated_at' => date('Y-m-d H:i:s')
                 ];
-                if($this->Patient_model->update_patient($id, $update_data)) {
+    
+                // Handle Profile Image Upload
+                if (!empty($_FILES['profile_image']['name'])) {
+                    $config['upload_path'] = './uploads/patients/'; // Folder where images will be stored
+                    $config['allowed_types'] = 'jpg|jpeg|png|gif';
+                    $config['max_size'] = 2048; // 2MB max size
+                    $config['encrypt_name']  = TRUE;
+                    $this->upload->initialize($config);
+                    if ($this->upload->do_upload('profile_image')) {
+                        $uploadData = $this->upload->data();
+                        $update_data['profile_image'] = 'uploads/patients/' . $uploadData['file_name'];
+
+                        // Delete old image if exists
+                        if (!empty($data['patient']['profile_image']) && file_exists('./uploads/patients/'.$data['patient']['profile_image'])) {
+                            unlink('./uploads/patients/'.$data['patient']['profile_image']);
+                        }
+                    } else {
+                        $this->session->set_flashdata('error', 'Failed to upload profile image: '.$this->upload->display_errors());
+                        redirect('patient/edit/'.$id);
+                    }
+                }
+    
+                if ($this->Patient_model->update_patient($id, $update_data)) {
                     $this->session->set_flashdata('success', 'Patient updated successfully');
                     redirect('patient/index');
                 } else {
                     $this->session->set_flashdata('error', 'Failed to update patient.');
-                    redirect('patient/edit',$data);
+                    redirect('patient/edit/'.$id);
                 }
             }
         }

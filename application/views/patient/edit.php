@@ -12,9 +12,6 @@
 </head>
 <body>
     <div class="container mt-5 col-md-6 offset-md-3 border rounded shadow p-5">
-
-
-
         <h2 class="mb-4">Edit Patient</h2>
  <!-- Show validation errors -->
  <?php if (validation_errors()): ?>
@@ -22,7 +19,7 @@
                 <?php echo validation_errors(); ?>
             </div>
         <?php endif; ?>
-        <?php echo form_open('patient/edit/'.$patient['id'], ['id' => 'editPatientForm']); ?>
+        <?php echo form_open_multipart('patient/edit/'.$patient['id'], ['id' => 'editPatientForm']); ?>
 
 
         <div class="form-group row">
@@ -64,6 +61,23 @@
                 <input type="text" name="phone" class="form-control" value="<?php echo set_value('phone', $patient['phone']); ?>">
             </div>
         </div>
+
+         <!-- ✅ Profile Image Upload -->
+         <div class="form-group row">
+            <div class="col-sm-6">
+                <label class="form-label">Profile Image:</label>
+                <input type="file" name="profile_image" class="form-control">
+            </div>
+            <div class="col-sm-6">
+                <?php if (!empty($patient['profile_image'])): ?>
+                    <label class="form-label">Current Image:</label><br>
+                    <img src="<?php echo base_url($patient['profile_image']); ?>" alt="Profile Image" class="img-thumbnail" width="120">
+                <?php else: ?>
+                    <p>No Image</p>
+                <?php endif; ?>
+            </div>
+        </div>
+
         <div class="form-group row pt-5  justify-content-center">
             <button type="submit" class="btn btn-primary mb-3">Update</button>
             <a href="<?php echo site_url('patient'); ?>" class="btn btn-secondary">Cancel</a>

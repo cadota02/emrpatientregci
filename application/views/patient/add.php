@@ -20,7 +20,7 @@
         <?php endif; ?>
 
         <!-- Add Patient Form -->
-        <?php echo form_open('patient/add', ['class' => 'needs-validation', 'novalidate' => '']); ?>
+        <?php echo form_open_multipart('patient/add', ['class' => 'needs-validation', 'novalidate' => '']); ?>
         <div class="form-group row">
         <div class="col-sm-4">
             <label class="form-label">Firstname:</label>
@@ -60,6 +60,12 @@
             <label class="form-label">Phone:</label>
             <input type="text" name="phone" class="form-control" placeholder="Enter Phone number" value="<?php echo set_value('phone'); ?>" required>
         </div>
+        </div>
+        <div class="form-group row">
+        <div class="col-sm-12">
+                    <label for="profile_image" class="form-label">Profile Image</label>
+                    <input type="file" class="form-control" name="profile_image" accept="image/*">
+                </div>
         </div>
         <div class="form-group row pt-5">
        

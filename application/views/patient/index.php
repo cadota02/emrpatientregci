@@ -7,8 +7,23 @@
 
     <!-- ✅ Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <!-- ✅ SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- ✅ DataTables -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
 </head>
 <body>
     <div class="container mt-5">
@@ -26,28 +41,27 @@
                 });
             </script>
         <?php endif; ?>
-        <div class="row">
-            <div class="col-md-6">
-                  <!-- ✅ Add New Patient -->
-        <a href="<?php echo site_url('patient/add'); ?>" class="btn btn-primary mb-3">Add New Patient</a>
+       
+        <div class="d-flex align-items-center">
+            <div class="col-md-9">
+                  <a href="<?php echo site_url('patient/add'); ?>" class="btn btn-primary mb-3">Add New Patient</a>
             </div>
-            <div class="col-md-6">
-            <form method="GET" action="<?php echo site_url('patient/index'); ?>" class="mb-3">
-            <div class="input-group">
-                <input type="text" name="search" class="form-control" placeholder="Search by name, email, or phone" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>">
-                <button type="submit" class="btn btn-primary">Search</button>
+            <div class="col-md-3 d-flex justify-content-end">
+                <div class="input-group">
+                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#searchModal">
+                    Advanced Search
+                </button>
                 <a href="<?php echo site_url('patient'); ?>" class="btn btn-secondary">Reset</a>
+                </div>
             </div>
-        </form>
-            </div>
+           
         </div>
      
 
-
         <!-- ✅ Patient List Table -->
         <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead class="table-dark">
+            <table id="patientTable" class="table table-striped table-bordered">
+                <thead >
                     <tr>
                         <th>ID</th>
                         <th>Fullname</th>
@@ -55,6 +69,7 @@
                         <th>Sex</th>
                         <th>Email</th>
                         <th>Phone</th>
+                        <th>Profile</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -68,6 +83,13 @@
                         <td><?php echo $patient['email']; ?></td>
                         <td><?php echo $patient['phone']; ?></td>
                         <td>
+                            <?php if ($patient['profile_image']): ?>
+                                <img src="<?php echo base_url($patient['profile_image']); ?>" width="50" height="50">
+                            <?php else: ?>
+                                No Image
+                            <?php endif; ?>
+                        </td>
+                        <td>
                             <a href="<?php echo site_url('patient/edit/'.$patient['id']); ?>" class="btn btn-warning btn-sm">Edit</a>
                             <button class="btn btn-danger btn-sm" onclick="confirmDelete(<?php echo $patient['id']; ?>)">Delete</button>
                         </td>
@@ -78,6 +100,70 @@
         </div>
     </div>
 
+
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchModalLabel">Advanced Search</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="searchForm">
+                    <div class="mb-3">
+                        <label for="searchName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="searchName" placeholder="Enter Name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="searchEmail" class="form-label">Email</label>
+                        <input type="text" class="form-control" id="searchEmail" placeholder="Enter Email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="searchPhone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="searchPhone" placeholder="Enter Phone">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+               
+                <button type="button" class="btn btn-primary" id="applySearch">Search</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <script>
+    $(document).ready(function() {
+        var table = $('#patientTable').DataTable({
+            dom: 'Bfrtip', // Enable buttons
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print' // Add export options
+            ]
+        });
+          // Search Button Click Event
+            $('#applySearch').on('click', function() {
+                var name = $('#searchName').val().trim();
+                var email = $('#searchEmail').val().trim();
+                var phone = $('#searchPhone').val().trim();
+
+                // Use %% for SQL-like partial search
+                table.column(1).search(name, false, true);  // Fullname column
+        table.column(4).search(email, false, true); // Email column
+        table.column(5).search(phone, false, true); // Phone column
+
+                table.draw();
+                $('#searchModal').modal('hide');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open');
+              
+            });
+    });
+
+    
+
+</script>
     <!-- ✅ Delete Confirmation -->
     <script>
         function confirmDelete(patientId) {
