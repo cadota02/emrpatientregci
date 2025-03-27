@@ -132,5 +132,8 @@ $autoload['language'] = array();
 | in the controller:
 |
 |	$autoload['model'] = array('first_model' => 'first');
+
+$autoload['composer_autoload'] =FCPATH . 'vendor/autoload.php';
 */
 $autoload['model'] = array();
+

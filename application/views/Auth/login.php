@@ -15,7 +15,7 @@
                 <h4>Login</h4>
             </div>
             <div class="card-body">
-                <?php if ($this->session->flashdata('error')): ?>
+                 <?php if ($this->session->flashdata('error')): ?>
                     <div class="alert alert-danger text-center"><?php echo $this->session->flashdata('error'); ?></div>
                 <?php endif; ?>
 

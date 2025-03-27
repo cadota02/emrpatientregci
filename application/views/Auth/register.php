@@ -61,11 +61,11 @@
                         // Redirect to login page
                         window.location.href = response.redirect;
                     } else {
-                        $("#alert-box").html('<div class="alert alert-danger">' + response.message + '</div>');
+                        $("#message").html('<div class="alert alert-danger">' + response.message + '</div>');
                     }
                 },
                 error: function () {
-                    $("#alert-box").html('<div class="alert alert-danger">Something went wrong. Please try again.</div>');
+                    $("#message").html('<div class="alert alert-danger">Something went wrong. Please try again.</div>');
                 }
             });
         });

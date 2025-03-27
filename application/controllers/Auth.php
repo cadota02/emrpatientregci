@@ -68,7 +68,7 @@ class Auth extends CI_Controller {
                 redirect('auth/login');
             }
         }
-        var_dump($_POST); exit;
+        //var_dump($_POST); exit;
     }
     public function logout() {
         $this->session->sess_destroy();
