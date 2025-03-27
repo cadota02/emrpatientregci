@@ -90,8 +90,10 @@
                             <?php endif; ?>
                         </td>
                         <td>
+                        <a href="#" class="btn btn-info btn-sm view-btn" >View</a>
                             <a href="<?php echo site_url('patient/edit/'.$patient['id']); ?>" class="btn btn-warning btn-sm">Edit</a>
                             <button class="btn btn-danger btn-sm" onclick="confirmDelete(<?php echo $patient['id']; ?>)">Delete</button>
+                       
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -134,6 +136,26 @@
 </div>
 
 
+<div class="modal fade" id="patientModal" tabindex="-1" aria-labelledby="patientModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="patientModalLabel">Patient Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Name:</strong> <span id="patient_name"></span></p>
+                <p><strong>Birthday:</strong> <span id="patient_birthday"></span></p>
+                <p><strong>Sex:</strong> <span id="patient_sex"></span></p>
+                <p><strong>Email:</strong> <span id="patient_email"></span></p>
+                <p><strong>Phone:</strong> <span id="patient_phone"></span></p>
+              
+            </div>
+        </div>
+    </div>
+</div>
+
+
     <script>
     $(document).ready(function() {
         var table = $('#patientTable').DataTable({
@@ -159,9 +181,38 @@
                 $('body').removeClass('modal-open');
               
             });
-    });
+            $('#patientTable tbody').on('click', '.view-btn', function() {
+                var data = table.row($(this).parents('tr')).data();
+                ViewPatient(data[0]); // Assuming the first column contains the patient ID
+            });
+            function ViewPatient(id)
+            {
+                $.ajax({
+                    url: "<?php echo base_url('patient/get_patient/'); ?>" + id,
+                    type: "GET",
+                    dataType: "json",
+                    success: function (response) {
+                        if (response) {
+                            $('#patient_name').text(response.name);
+                            $('#patient_birthday').text(response.birthday);
+                            $('#patient_sex').text(response.sex);
+                            $('#patient_email').text(response.email);
+                            $('#patient_phone').text(response.phone);
+                            
+                            $('#patientModal').modal('show');
+                        } else {
+                            alert('Patient details not found.');
+                        }
+                    },
+                    error: function()
+                    {
+                        alert('Failed to get patient details');
+                    }
+                });
+            }
 
-    
+            
+    });
 
 </script>
     <!-- ✅ Delete Confirmation -->
