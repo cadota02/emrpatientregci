@@ -58,3 +58,9 @@ $route['patient/update/(:any)']['GET'] = 'patient/edit/$1';
 $route['patient/destroy/(:any)']['GET'] = 'patient/delete/$1';
 
 $route['patient/get_patient/(:any)']['GET'] = 'patient/getPatientByID/$1';
+
+$route['auth/register'] = 'auth/register';
+$route['auth/process_register'] = 'auth/process_register';
+$route['auth/login'] = 'auth/login';
+$route['auth/process_login'] = 'auth/process_login';
+$route['auth/logout'] = 'auth/logout';
