@@ -27,6 +27,43 @@
 </head>
 <body>
     <div class="container mt-5">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="<?php echo site_url('dashboard'); ?>">EMR </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="<?php echo site_url('dashboard'); ?>">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <?php if ($this->session->userdata('logged_in')): ?>
+                    <li class="nav-item">
+                        <span class="nav-link text-white">Welcome, <?php echo $this->session->userdata('username'); ?></span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-danger btn-sm" href="<?php echo site_url('auth/logout'); ?>">Logout</a>
+                    </li>
+                <?php else: ?>
+                    <li class="nav-item">
+                        <a class="btn btn-success btn-sm" href="<?php echo site_url('auth/login'); ?>">Login</a>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </div>
+    </div>
+</nav>
+
         <h2 class="mb-4">Patients List</h2>
 
         <!-- ✅ SweetAlert for Success Message -->
@@ -158,6 +195,7 @@
 
     <script>
     $(document).ready(function() {
+      
         var table = $('#patientTable').DataTable({
             dom: 'Bfrtip', // Enable buttons
             buttons: [

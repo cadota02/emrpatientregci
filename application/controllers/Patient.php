@@ -11,10 +11,17 @@ class Patient extends CI_Controller {
     }
 
     public function index() {
+
+        if (!$this->session->userdata('user_id')) {
+            redirect('auth/login'); // Redirect to login page if not authenticated
+        }
+        else
+        {
         $search = $this->input->get('search'); 
        // $data['patients'] = $this->Patient_model->get_patient_list_all();
         $data['patients'] = $this->Patient_model->get_patients($search);
         $this->load->view('patient/index', $data);
+        }
     }
 
     public function add() {
